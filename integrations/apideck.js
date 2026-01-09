@@ -17,6 +17,20 @@ class ApideckIntegration {
       sage: 'sage',
       freshbooks: 'freshbooks'
     };
+    
+    // Configurable Zakat settings
+    this.zakatConfig = {
+      rate: parseFloat(process.env.ZAKAT_RATE || '0.025'), // 2.5% default
+      nisabThresholdUSD: parseFloat(process.env.NISAB_THRESHOLD_USD || '5000'),
+      // Currency-specific nisab thresholds (based on current gold prices)
+      nisabByCurrency: {
+        'USD': 5000,
+        'EUR': 4600,
+        'GBP': 4000,
+        'AED': 18350,
+        'SAR': 18750
+      }
+    };
   }
 
   /**
@@ -93,17 +107,18 @@ class ApideckIntegration {
    * Calculate Zakat (2.5% of eligible wealth)
    */
   calculateZakat(totalWealth, currency = 'USD') {
-    const ZAKAT_RATE = 0.025; // 2.5%
-    const NISAB_THRESHOLD = 5000; // Minimum wealth threshold
+    const zakatRate = this.zakatConfig.rate;
+    const nisabThreshold = this.zakatConfig.nisabByCurrency[currency] || 
+                          this.zakatConfig.nisabThresholdUSD;
 
-    const zakatDue = totalWealth >= NISAB_THRESHOLD ? 
-                     totalWealth * ZAKAT_RATE : 0;
+    const zakatDue = totalWealth >= nisabThreshold ? 
+                     totalWealth * zakatRate : 0;
 
     return {
       totalWealth,
-      nisabThreshold: NISAB_THRESHOLD,
-      meetsNisab: totalWealth >= NISAB_THRESHOLD,
-      zakatRate: ZAKAT_RATE,
+      nisabThreshold,
+      meetsNisab: totalWealth >= nisabThreshold,
+      zakatRate,
       zakatDue,
       currency,
       calculatedAt: new Date().toISOString()

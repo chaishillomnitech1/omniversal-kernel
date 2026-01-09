@@ -135,7 +135,7 @@ app.post('/api/artifacts/merge', async (req, res) => {
     console.log(`[Artifact Merge] Merging ${artifactType} artifact`);
 
     const artifact = {
-      id: `ARTIFACT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `ARTIFACT-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       type: artifactType,
       data,
       secured: secureInMainInfinite !== false,
@@ -299,7 +299,7 @@ app.post('/api/nft/mint', async (req, res) => {
     console.log(`[NFT Minting] Minting ${ceremonial ? 'ceremonial' : 'achievement'} NFT for ${architectId}`);
 
     const nft = {
-      id: `NFT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `NFT-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       tokenId: state.layers.nftAchievement.minted + 1,
       architectId,
       type: achievementType,

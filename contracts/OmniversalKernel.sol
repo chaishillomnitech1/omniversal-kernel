@@ -31,6 +31,7 @@ contract BricksTokenization is ERC721, Ownable, ReentrancyGuard {
 
     mapping(uint256 => Property) public properties;
     mapping(string => uint256) public propertyIdToTokenId;
+    mapping(uint256 => bool) private _tokenExists;
 
     event PropertyTokenized(
         uint256 indexed tokenId,
@@ -61,7 +62,7 @@ contract BricksTokenization is ERC721, Ownable, ReentrancyGuard {
         string memory location,
         address recipient
     ) external onlyOwner nonReentrant returns (uint256) {
-        require(propertyIdToTokenId[propertyId] == 0, "Property already tokenized");
+        require(propertyIdToTokenId[propertyId] == 0 || !_tokenExists[propertyIdToTokenId[propertyId]], "Property already tokenized");
         require(recipient != address(0), "Invalid recipient");
 
         _tokenIds.increment();
@@ -76,6 +77,7 @@ contract BricksTokenization is ERC721, Ownable, ReentrancyGuard {
         });
 
         propertyIdToTokenId[propertyId] = newTokenId;
+        _tokenExists[newTokenId] = true;
 
         _safeMint(recipient, newTokenId);
 
@@ -88,7 +90,7 @@ contract BricksTokenization is ERC721, Ownable, ReentrancyGuard {
      * @notice Get property details by token ID
      */
     function getProperty(uint256 tokenId) external view returns (Property memory) {
-        require(_exists(tokenId), "Property does not exist");
+        require(_tokenExists[tokenId], "Property does not exist");
         return properties[tokenId];
     }
 

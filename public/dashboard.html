@@ -353,7 +353,7 @@
         // Dashboard data update function
         async function updateDashboard() {
             try {
-                const response = await fetch('http://localhost:3000/api/dashboard/realtime');
+                const response = await fetch('/api/dashboard/realtime');
                 const data = await response.json();
 
                 // Update architects

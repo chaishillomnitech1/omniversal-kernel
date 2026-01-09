@@ -221,16 +221,28 @@ class DeepLearningEngine {
    * Run prediction model
    */
   runModel(features) {
+    // Model constants
+    const BASE_GROWTH_MIN = 10;
+    const BASE_GROWTH_RANGE = 30;
+    const ENGAGEMENT_THRESHOLD = 50;
+    const ENGAGEMENT_BONUS = 5;
+    const ZAKAT_BONUS = 3;
+    
     // Simulate deep learning model inference
-    const baseGrowth = Math.floor(Math.random() * 30) + 10;
-    const engagementBonus = features.engagement > 50 ? 5 : 0;
-    const zakatBonus = features.zakatCompliance ? 3 : 0;
+    const baseGrowth = Math.floor(Math.random() * BASE_GROWTH_RANGE) + BASE_GROWTH_MIN;
+    const engagementBonus = features.engagement > ENGAGEMENT_THRESHOLD ? ENGAGEMENT_BONUS : 0;
+    const zakatBonus = features.zakatCompliance ? ZAKAT_BONUS : 0;
     
     const totalGrowth = baseGrowth + engagementBonus + zakatBonus;
 
+    // Growth trajectory thresholds
+    const ACCELERATING_THRESHOLD = 25;
+    const STEADY_THRESHOLD = 15;
+    
     return {
       growth: totalGrowth,
-      trajectory: totalGrowth > 25 ? 'accelerating' : totalGrowth > 15 ? 'steady' : 'emerging',
+      trajectory: totalGrowth > ACCELERATING_THRESHOLD ? 'accelerating' : 
+                 totalGrowth > STEADY_THRESHOLD ? 'steady' : 'emerging',
       confidence: 0.85 + (Math.random() * 0.1),
       milestones: this.predictMilestones(features, totalGrowth)
     };
