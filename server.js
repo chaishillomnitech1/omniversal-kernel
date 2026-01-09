@@ -7,14 +7,23 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const path = require('path');
+const { CRMIntegration, SNWCalculator } = require('./integrations/crm');
+const { ApideckIntegration } = require('./integrations/apideck');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize integrations
+const crmIntegration = new CRMIntegration();
+const snwCalculator = new SNWCalculator();
+const apideckIntegration = new ApideckIntegration();
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // State management
 const state = {
@@ -220,7 +229,7 @@ app.post('/api/zakat/automate', async (req, res) => {
  */
 app.get('/api/dashboard/realtime', (req, res) => {
   try {
-    const snwMetrics = calculateSNWMetrics();
+    const snwMetrics = snwCalculator.calculateSNWMetrics([]);
 
     const dashboard = {
       timestamp: new Date().toISOString(),
@@ -450,21 +459,6 @@ async function predictSpiritualGrowth(architect) {
       'Participate in ceremonial events',
       'Contribute to collective projects'
     ]
-  };
-}
-
-function calculateSNWMetrics() {
-  return {
-    socialNetwork: {
-      connections: Math.floor(Math.random() * 1000000),
-      clusters: Math.floor(Math.random() * 5000)
-    },
-    networkStrength: Math.random() * 100,
-    wealthDistribution: {
-      top10Percent: 0.45,
-      median: 50000,
-      total: state.architects.total
-    }
   };
 }
 

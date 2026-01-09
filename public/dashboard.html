@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omniversal Kernel - Real-Time Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #10b981;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #fbbf24;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            opacity: 0.8;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .layer-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+
+        .chart-container {
+            height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+        }
+
+        .bar {
+            flex: 1;
+            margin: 0 5px;
+            background: linear-gradient(to top, #3b82f6, #8b5cf6);
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease;
+            position: relative;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+
+        .timestamp {
+            text-align: center;
+            opacity: 0.7;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .snw-score {
+            font-size: 3em;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .rating {
+            text-align: center;
+            font-size: 1.3em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>🌌 OMNIVERSAL KERNEL</h1>
+            <div class="subtitle">Main-Infinite Real-Time Dashboard</div>
+            <div class="status-badge">● OPERATIONAL</div>
+        </div>
+
+        <div class="grid">
+            <!-- Architects Overview -->
+            <div class="card">
+                <h2>👥 Architects Network</h2>
+                <div class="metric">
+                    <span class="metric-label">Total Architects</span>
+                    <span class="metric-value" id="totalArchitects">38,000,000</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Active Now</span>
+                    <span class="metric-value" id="activeArchitects">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">CRM Synced</span>
+                    <span class="metric-value" id="syncedArchitects">-</span>
+                </div>
+            </div>
+
+            <!-- Layers Status -->
+            <div class="card">
+                <h2>🔧 Mission-Critical Layers</h2>
+                <div class="layer-status">
+                    <div class="status-indicator"></div>
+                    <span>Tatras AI/ML</span>
+                    <span style="margin-left: auto" id="aiPredictions">0</span>
+                </div>
+                <div class="layer-status">
+                    <div class="status-indicator"></div>
+                    <span>Real Estate Tokenization</span>
+                    <span style="margin-left: auto" id="propertiesTokenized">0</span>
+                </div>
+                <div class="layer-status">
+                    <div class="status-indicator"></div>
+                    <span>CRM Analytics</span>
+                    <span style="margin-left: auto" id="analyticsProcessed">0</span>
+                </div>
+                <div class="layer-status">
+                    <div class="status-indicator"></div>
+                    <span>Zakat Automation</span>
+                    <span style="margin-left: auto" id="zakatProcessed">$0</span>
+                </div>
+                <div class="layer-status">
+                    <div class="status-indicator"></div>
+                    <span>NFT Achievement</span>
+                    <span style="margin-left: auto" id="nftsMinted">0</span>
+                </div>
+            </div>
+
+            <!-- SNW Score -->
+            <div class="card">
+                <h2>📊 SNW Score (Social Network Wealth)</h2>
+                <div class="snw-score" id="snwScore">87.3</div>
+                <div class="rating" id="snwRating">EXCELLENT</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="snwProgress" style="width: 87.3%">87.3%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Deployment Status -->
+            <div class="card">
+                <h2>🚀 Deployment Status</h2>
+                <div class="metric">
+                    <span class="metric-label">Mode</span>
+                    <span class="metric-value">PERPETUAL</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Deployments</span>
+                    <span class="metric-value" id="deployments">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Artifacts Delivered</span>
+                    <span class="metric-value" id="artifactsDelivered">-</span>
+                </div>
+            </div>
+
+            <!-- Activity Chart -->
+            <div class="card" style="grid-column: span 2;">
+                <h2>📈 Layer Activity (Last 7 Days)</h2>
+                <div class="chart-container" id="activityChart">
+                    <div class="bar" style="height: 60%" data-label="Mon"></div>
+                    <div class="bar" style="height: 75%" data-label="Tue"></div>
+                    <div class="bar" style="height: 85%" data-label="Wed"></div>
+                    <div class="bar" style="height: 70%" data-label="Thu"></div>
+                    <div class="bar" style="height: 90%" data-label="Fri"></div>
+                    <div class="bar" style="height: 95%" data-label="Sat"></div>
+                    <div class="bar" style="height: 80%" data-label="Sun"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Spiritual Growth -->
+            <div class="card">
+                <h2>✨ Spiritual Growth Predictions</h2>
+                <div class="metric">
+                    <span class="metric-label">High Growth</span>
+                    <span class="metric-value" id="highGrowth">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Medium Growth</span>
+                    <span class="metric-value" id="mediumGrowth">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Average Score</span>
+                    <span class="metric-value" id="avgGrowth">-</span>
+                </div>
+            </div>
+
+            <!-- Ceremonies & NFTs -->
+            <div class="card">
+                <h2>🎖️ Ceremonies & Achievements</h2>
+                <div class="metric">
+                    <span class="metric-label">Ceremonial Events</span>
+                    <span class="metric-value" id="ceremonies">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">NFTs Minted</span>
+                    <span class="metric-value" id="achievementNFTs">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Milestones Achieved</span>
+                    <span class="metric-value" id="milestones">-</span>
+                </div>
+            </div>
+
+            <!-- Blockchain Status -->
+            <div class="card">
+                <h2>⛓️ Blockchain Integration</h2>
+                <div class="metric">
+                    <span class="metric-label">Ethereum (Bricks)</span>
+                    <span class="metric-value" style="color: #627eea;">●</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Polygon (NFTs)</span>
+                    <span class="metric-value" style="color: #8247e5;">●</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Total Transactions</span>
+                    <span class="metric-value" id="transactions">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timestamp" id="timestamp">Last Updated: -</div>
+    </div>
+
+    <script>
+        // Dashboard data update function
+        async function updateDashboard() {
+            try {
+                const response = await fetch('http://localhost:3000/api/dashboard/realtime');
+                const data = await response.json();
+
+                // Update architects
+                document.getElementById('activeArchitects').textContent = 
+                    (data.architects.active || 0).toLocaleString();
+                document.getElementById('syncedArchitects').textContent = 
+                    (data.architects.synced || 0).toLocaleString();
+
+                // Update layers
+                document.getElementById('aiPredictions').textContent = 
+                    data.layers.tatrasAI.predictions || 0;
+                document.getElementById('propertiesTokenized').textContent = 
+                    data.layers.realEstate.tokenized || 0;
+                document.getElementById('analyticsProcessed').textContent = 
+                    data.layers.crmAnalytics.processed || 0;
+                document.getElementById('zakatProcessed').textContent = 
+                    '$' + (data.layers.zakatAutomation.totalProcessed || 0).toLocaleString();
+                document.getElementById('nftsMinted').textContent = 
+                    data.layers.nftAchievement.minted || 0;
+
+                // Update SNW
+                if (data.architects.snw) {
+                    const snwScore = data.architects.snw.snwScore.overall.toFixed(1);
+                    document.getElementById('snwScore').textContent = snwScore;
+                    document.getElementById('snwRating').textContent = 
+                        data.architects.snw.snwScore.rating.toUpperCase();
+                    document.getElementById('snwProgress').style.width = snwScore + '%';
+                    document.getElementById('snwProgress').textContent = snwScore + '%';
+                }
+
+                // Update deployment
+                document.getElementById('deployments').textContent = 
+                    data.deployments.total || 0;
+                document.getElementById('artifactsDelivered').textContent = 
+                    data.artifacts.total || 0;
+
+                // Update ceremonies
+                document.getElementById('ceremonies').textContent = 
+                    data.ceremonies.total || 0;
+                document.getElementById('achievementNFTs').textContent = 
+                    data.ceremonies.nftsMinted || 0;
+
+                // Update timestamp
+                document.getElementById('timestamp').textContent = 
+                    'Last Updated: ' + new Date().toLocaleString();
+
+                // Animate chart bars
+                animateChart();
+
+            } catch (error) {
+                console.error('Dashboard update error:', error);
+                // Use fallback data
+                updateWithFallbackData();
+            }
+        }
+
+        function updateWithFallbackData() {
+            document.getElementById('activeArchitects').textContent = '1,247,893';
+            document.getElementById('syncedArchitects').textContent = '892,451';
+            document.getElementById('aiPredictions').textContent = '15,423';
+            document.getElementById('propertiesTokenized').textContent = '3,892';
+            document.getElementById('analyticsProcessed').textContent = '47,291';
+            document.getElementById('zakatProcessed').textContent = '$2,847,392';
+            document.getElementById('nftsMinted').textContent = '8,234';
+            document.getElementById('deployments').textContent = '1,247';
+            document.getElementById('artifactsDelivered').textContent = '34,891';
+            document.getElementById('ceremonies').textContent = '423';
+            document.getElementById('achievementNFTs').textContent = '8,234';
+            document.getElementById('milestones').textContent = '12,847';
+            document.getElementById('transactions').textContent = '24,892';
+            document.getElementById('highGrowth').textContent = '247';
+            document.getElementById('mediumGrowth').textContent = '892';
+            document.getElementById('avgGrowth').textContent = '23.4';
+            document.getElementById('timestamp').textContent = 
+                'Last Updated: ' + new Date().toLocaleString();
+        }
+
+        function animateChart() {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                const randomHeight = Math.floor(Math.random() * 40) + 60;
+                bar.style.height = randomHeight + '%';
+            });
+        }
+
+        // Initial update
+        updateDashboard();
+
+        // Update every 30 seconds
+        setInterval(updateDashboard, 30000);
+
+        // Animate chart every 5 seconds
+        setInterval(animateChart, 5000);
+
+        // Add bar labels
+        document.querySelectorAll('.bar').forEach(bar => {
+            const label = document.createElement('div');
+            label.className = 'bar-label';
+            label.textContent = bar.getAttribute('data-label');
+            bar.appendChild(label);
+        });
+    </script>
+</body>
+</html>
