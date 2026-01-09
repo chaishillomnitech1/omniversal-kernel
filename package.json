@@ -1,0 +1,90 @@
+{
+  "name": "omniversal-kernel",
+  "version": "1.0.0",
+  "description": "A sovereign Omniversal Kernel integrating AI/ML, Real Estate (Bricks), CRM (Architects), Accounting (Zakat), and Achievement dashboards into a seamless, eternal main-infinite branch.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "kernel": "python omniversal-kernel.py",
+    "dashboard": "python dashboard.py",
+    "test": "jest",
+    "compile": "hardhat compile",
+    "deploy:contracts": "hardhat run scripts/deploy.js",
+    "deploy": "npm run compile && npm run deploy:contracts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chaishillomnitech1/omniversal-kernel.git"
+  },
+  "keywords": [
+    "omniversal",
+    "kernel",
+    "ai-ml",
+    "real-estate",
+    "tokenization",
+    "crm",
+    "zakat",
+    "nft",
+    "blockchain",
+    "perpetual-deployment",
+    "main-infinite",
+    "white-label-ai",
+    "salesforce",
+    "hubspot",
+    "apideck"
+  ],
+  "author": "Omniversal Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "axios": "^1.6.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "ethers": "^6.9.0",
+    "hardhat": "^2.19.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0"
+  },
+  "layers": {
+    "tatras_ai_ml": {
+      "version": "1.0.0",
+      "status": "active",
+      "endpoint": "/api/ai/white-label"
+    },
+    "real_estate_tokenization": {
+      "version": "1.0.0",
+      "status": "active",
+      "contract": "BricksTokenization"
+    },
+    "crm_analytics": {
+      "version": "1.0.0",
+      "status": "active",
+      "architects": 38000000,
+      "integrations": ["salesforce", "hubspot"]
+    },
+    "zakat_automation": {
+      "version": "1.0.0",
+      "status": "active",
+      "provider": "apideck"
+    },
+    "nft_achievement": {
+      "version": "1.0.0",
+      "status": "active",
+      "contract": "AchievementNFT"
+    }
+  },
+  "deployment": {
+    "mode": "perpetual",
+    "branch": "main-infinite",
+    "parallel_delivery": true,
+    "real_time_dashboard": true,
+    "instant_artifacts": true
+  },
+  "sovereignty": "advanced"
+}
