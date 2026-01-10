@@ -792,3 +792,282 @@ contract RWAAssetContract is Ownable, ReentrancyGuard {
                auctionPreparations[tokenId].calibrationComplete;
     }
 }
+
+/**
+ * @title HelixBitcoinBridge
+ * @notice Helix Protocol Bitcoin-to-Bricks Bridge for Tokyo and London Real Estate
+ * @dev Converts Bitcoin to Real Estate Tokens (Bricks) with regional and Galactic calibration
+ */
+contract HelixBitcoinBridge is Ownable, ReentrancyGuard {
+    using Counters for Counters.Counter;
+    Counters.Counter private _assetIds;
+
+    // Regional calibration constants (scaled by 100 for precision)
+    uint256 public constant TOKYO_MULTIPLIER = 135; // 1.35x
+    uint256 public constant LONDON_MULTIPLIER = 128; // 1.28x
+    uint256 public constant REGIONAL_DENOMINATOR = 100;
+    
+    // Galactic Center calibration constant (scaled by 10000)
+    uint256 public constant GALACTIC_CALIBRATION_FACTOR = 10618; // 1.0618
+    uint256 public constant GALACTIC_DENOMINATOR = 10000;
+    
+    // Yield boost constants (scaled by 100)
+    uint256 public constant TOKYO_YIELD_BOOST = 108; // 1.08x (8% boost)
+    uint256 public constant LONDON_YIELD_BOOST = 106; // 1.06x (6% boost)
+    uint256 public constant YIELD_DENOMINATOR = 100;
+
+    enum Location { Tokyo, London }
+
+    struct BitcoinBackedBrick {
+        string assetId;
+        Location location;
+        uint256 btcAmount; // Scaled by 1e8 (satoshis)
+        uint256 btcUsdRate; // USD per BTC
+        uint256 baseUsdValue;
+        uint256 regionalValue;
+        uint256 galacticCalibratedValue;
+        uint256 regionalMultiplier;
+        uint256 tokenizedAt;
+        address owner;
+        bool active;
+    }
+
+    struct YieldCalibration {
+        uint256 assetId;
+        uint256 annualYieldRate; // Scaled by 10000 (e.g., 500 = 5%)
+        uint256 periodMonths;
+        uint256 finalYield;
+        uint256 locationYieldBoost;
+        bool galacticAligned;
+        uint256 calibratedAt;
+    }
+
+    mapping(uint256 => BitcoinBackedBrick) public bitcoinBricks;
+    mapping(uint256 => YieldCalibration) public yieldCalibrations;
+    mapping(Location => uint256) public locationAssetCount;
+    mapping(string => uint256) public assetIdToTokenId;
+
+    uint256 public totalBtcBacked;
+    uint256 public totalBtcValue;
+    uint256 public btcUsdRate;
+
+    event BitcoinBrickCreated(
+        uint256 indexed tokenId,
+        string assetId,
+        Location location,
+        uint256 btcAmount,
+        uint256 galacticCalibratedValue,
+        address owner
+    );
+
+    event YieldCalibrated(
+        uint256 indexed tokenId,
+        uint256 finalYield,
+        uint256 locationYieldBoost,
+        bool galacticAligned
+    );
+
+    event RWAIntegrated(
+        uint256 indexed tokenId,
+        uint256 rwaValue,
+        bool perfectlyCalibrated
+    );
+
+    constructor() {
+        btcUsdRate = 45000 * 1e18; // Default BTC/USD rate
+    }
+
+    /**
+     * @notice Update BTC/USD rate
+     */
+    function updateBtcUsdRate(uint256 newRate) external onlyOwner {
+        btcUsdRate = newRate;
+    }
+
+    /**
+     * @notice Convert Bitcoin to Bricks with location-specific calibration
+     */
+    function convertBitcoinToBricks(
+        string memory assetId,
+        Location location,
+        uint256 btcAmount,
+        address assetOwner
+    ) external onlyOwner nonReentrant returns (uint256) {
+        require(assetIdToTokenId[assetId] == 0, "Asset already exists");
+        require(btcAmount > 0, "BTC amount must be greater than 0");
+        require(assetOwner != address(0), "Invalid owner");
+
+        _assetIds.increment();
+        uint256 newTokenId = _assetIds.current();
+
+        // Calculate USD value from BTC
+        uint256 baseUsdValue = (btcAmount * btcUsdRate) / 1e8; // Convert satoshis
+
+        // Apply regional multiplier
+        uint256 regionalMultiplier = location == Location.Tokyo ? TOKYO_MULTIPLIER : LONDON_MULTIPLIER;
+        uint256 regionalValue = (baseUsdValue * regionalMultiplier) / REGIONAL_DENOMINATOR;
+
+        // Apply Galactic Center calibration
+        uint256 galacticCalibratedValue = (regionalValue * GALACTIC_CALIBRATION_FACTOR) / GALACTIC_DENOMINATOR;
+
+        bitcoinBricks[newTokenId] = BitcoinBackedBrick({
+            assetId: assetId,
+            location: location,
+            btcAmount: btcAmount,
+            btcUsdRate: btcUsdRate,
+            baseUsdValue: baseUsdValue,
+            regionalValue: regionalValue,
+            galacticCalibratedValue: galacticCalibratedValue,
+            regionalMultiplier: regionalMultiplier,
+            tokenizedAt: block.timestamp,
+            owner: assetOwner,
+            active: true
+        });
+
+        assetIdToTokenId[assetId] = newTokenId;
+        locationAssetCount[location]++;
+        totalBtcBacked++;
+        totalBtcValue += btcAmount;
+
+        emit BitcoinBrickCreated(
+            newTokenId,
+            assetId,
+            location,
+            btcAmount,
+            galacticCalibratedValue,
+            assetOwner
+        );
+
+        return newTokenId;
+    }
+
+    /**
+     * @notice Calibrate yield with Galactic Center alignment
+     */
+    function calibrateYield(
+        uint256 tokenId,
+        uint256 annualYieldRate,
+        uint256 periodMonths
+    ) external onlyOwner returns (uint256) {
+        require(bitcoinBricks[tokenId].active, "Asset not found");
+        require(annualYieldRate <= 10000, "Yield rate too high"); // Max 100%
+        require(periodMonths > 0 && periodMonths <= 120, "Invalid period");
+
+        BitcoinBackedBrick memory brick = bitcoinBricks[tokenId];
+
+        // Calculate base yield
+        uint256 baseValue = brick.galacticCalibratedValue;
+        uint256 annualYield = (baseValue * annualYieldRate) / 10000;
+        uint256 periodYield = (annualYield * periodMonths) / 12;
+
+        // Apply Galactic Center calibration to yield
+        uint256 galacticYieldFactor = GALACTIC_DENOMINATOR + ((GALACTIC_CALIBRATION_FACTOR - GALACTIC_DENOMINATOR) / 2);
+        uint256 calibratedYield = (periodYield * galacticYieldFactor) / GALACTIC_DENOMINATOR;
+
+        // Apply location-based yield boost
+        uint256 locationYieldBoost = brick.location == Location.Tokyo ? TOKYO_YIELD_BOOST : LONDON_YIELD_BOOST;
+        uint256 finalYield = (calibratedYield * locationYieldBoost) / YIELD_DENOMINATOR;
+
+        yieldCalibrations[tokenId] = YieldCalibration({
+            assetId: tokenId,
+            annualYieldRate: annualYieldRate,
+            periodMonths: periodMonths,
+            finalYield: finalYield,
+            locationYieldBoost: locationYieldBoost,
+            galacticAligned: true,
+            calibratedAt: block.timestamp
+        });
+
+        emit YieldCalibrated(
+            tokenId,
+            finalYield,
+            locationYieldBoost,
+            true
+        );
+
+        return finalYield;
+    }
+
+    /**
+     * @notice Integrate Bitcoin-backed Bricks with RWA system
+     */
+    function integrateWithRWA(
+        uint256 tokenId,
+        uint256 rwaValue,
+        bool perfectlyCalibrated
+    ) external onlyOwner {
+        require(bitcoinBricks[tokenId].active, "Asset not found");
+
+        emit RWAIntegrated(
+            tokenId,
+            rwaValue,
+            perfectlyCalibrated
+        );
+    }
+
+    /**
+     * @notice Get Bitcoin Brick details
+     */
+    function getBitcoinBrick(uint256 tokenId) 
+        external 
+        view 
+        returns (BitcoinBackedBrick memory) 
+    {
+        require(bitcoinBricks[tokenId].active, "Asset not found");
+        return bitcoinBricks[tokenId];
+    }
+
+    /**
+     * @notice Get yield calibration details
+     */
+    function getYieldCalibration(uint256 tokenId)
+        external
+        view
+        returns (YieldCalibration memory)
+    {
+        require(yieldCalibrations[tokenId].calibratedAt > 0, "Yield not calibrated");
+        return yieldCalibrations[tokenId];
+    }
+
+    /**
+     * @notice Get location statistics
+     */
+    function getLocationStats(Location location)
+        external
+        view
+        returns (
+            uint256 assetCount,
+            uint256 regionalMultiplier,
+            uint256 yieldBoost
+        )
+    {
+        return (
+            locationAssetCount[location],
+            location == Location.Tokyo ? TOKYO_MULTIPLIER : LONDON_MULTIPLIER,
+            location == Location.Tokyo ? TOKYO_YIELD_BOOST : LONDON_YIELD_BOOST
+        );
+    }
+
+    /**
+     * @notice Get bridge status
+     */
+    function getBridgeStatus()
+        external
+        view
+        returns (
+            uint256 totalAssets,
+            uint256 totalBtc,
+            uint256 currentBtcRate,
+            uint256 tokyoAssets,
+            uint256 londonAssets
+        )
+    {
+        return (
+            totalBtcBacked,
+            totalBtcValue,
+            btcUsdRate,
+            locationAssetCount[Location.Tokyo],
+            locationAssetCount[Location.London]
+        );
+    }
+}
