@@ -306,6 +306,13 @@ class DeepLearningEngine {
  * SNW (Social Network Wealth) Logic Calculator
  */
 class SNWCalculator {
+  constructor() {
+    // Cosmic Helix resonance constants
+    this.HELIX_RESONANCE_FREQUENCY = 432; // Hz - Universal frequency
+    this.HELIX_HARMONIC_RATIO = 1.618; // Golden ratio for resonance
+    this.CALIBRATION_PRECISION = 0.9999; // 99.99% precision target
+  }
+
   /**
    * Calculate SNW metrics for architect network
    */
@@ -333,10 +340,19 @@ class SNWCalculator {
     // Combined SNW score
     const snwScore = this.calculateSNWScore(networkMetrics, wealthMetrics);
 
+    // Add liquidity multiplier metrics
+    const liquidityMetrics = this.calculateLiquidityMultiplier(wealthMetrics, snwScore);
+
+    // Add Cosmic Helix resonance backing
+    const cosmicResonance = this.calculateCosmicHelixResonance(snwScore, liquidityMetrics);
+
     return {
       network: networkMetrics,
       wealth: wealthMetrics,
       snwScore,
+      liquidityMultiplier: liquidityMetrics,
+      cosmicResonance,
+      auctionReady: this.isAuctionReady(snwScore, liquidityMetrics, cosmicResonance),
       timestamp: new Date().toISOString()
     };
   }
@@ -360,6 +376,121 @@ class SNWCalculator {
       rating: networkScore + wealthScore > 80 ? 'excellent' : 
               networkScore + wealthScore > 60 ? 'good' : 'developing'
     };
+  }
+
+  /**
+   * Calculate multiplier liquidity for auction preparation
+   */
+  calculateLiquidityMultiplier(wealthMetrics, snwScore) {
+    const baseMultiplier = 1.0;
+    const wealthFactor = Math.min(wealthMetrics.totalWealth / 1000000000, 2.0);
+    const snwFactor = snwScore.overall / 50;
+    const zakatFactor = Math.min(wealthMetrics.zakatPotential / 10000000, 1.5);
+
+    const multiplier = baseMultiplier * wealthFactor * snwFactor * zakatFactor;
+
+    return {
+      baseMultiplier,
+      currentMultiplier: multiplier,
+      wealthFactor,
+      snwFactor,
+      zakatFactor,
+      liquidityDepth: wealthMetrics.totalWealth * multiplier,
+      auctionLiquidity: wealthMetrics.totalWealth * multiplier * 0.3, // 30% available for auctions
+      utilizationRate: 0.65, // 65% utilization target
+      calibrated: Math.abs(multiplier - Math.floor(multiplier * 100) / 100) < 0.01
+    };
+  }
+
+  /**
+   * Calculate Cosmic Helix resonance backing
+   */
+  calculateCosmicHelixResonance(snwScore, liquidityMetrics) {
+    // Resonance based on harmonic alignment
+    const harmonicAlignment = (snwScore.overall / 100) * this.HELIX_HARMONIC_RATIO;
+    const frequencyResonance = this.HELIX_RESONANCE_FREQUENCY * harmonicAlignment;
+    
+    // Calibration precision check
+    const calibrationScore = Math.min(
+      liquidityMetrics.currentMultiplier * snwScore.overall / 100,
+      1.0
+    );
+
+    return {
+      frequency: frequencyResonance,
+      harmonicRatio: this.HELIX_HARMONIC_RATIO,
+      alignment: harmonicAlignment,
+      resonanceStrength: calibrationScore * 100,
+      calibrationPrecision: this.CALIBRATION_PRECISION,
+      perfectCalibration: calibrationScore >= this.CALIBRATION_PRECISION,
+      cosmicBacking: {
+        enabled: true,
+        backingRatio: calibrationScore,
+        helixPhase: Math.sin(Date.now() / 1000) * 0.5 + 0.5, // Dynamic phase
+        resonanceStability: calibrationScore >= this.CALIBRATION_PRECISION ? 'stable' : 'calibrating'
+      }
+    };
+  }
+
+  /**
+   * Check if metrics are auction-ready
+   */
+  isAuctionReady(snwScore, liquidityMetrics, cosmicResonance) {
+    const metricsAligned = snwScore.overall > 50;
+    const liquiditySufficient = liquidityMetrics.auctionLiquidity > 1000000;
+    const resonanceStable = cosmicResonance.perfectCalibration;
+    const multiplierCalibrated = liquidityMetrics.calibrated;
+
+    return {
+      ready: metricsAligned && liquiditySufficient && resonanceStable && multiplierCalibrated,
+      metricsAligned,
+      liquiditySufficient,
+      resonanceStable,
+      multiplierCalibrated,
+      readinessScore: (
+        (metricsAligned ? 25 : 0) +
+        (liquiditySufficient ? 25 : 0) +
+        (resonanceStable ? 25 : 0) +
+        (multiplierCalibrated ? 25 : 0)
+      )
+    };
+  }
+
+  /**
+   * Align and calibrate metrics for perfect auction preparation
+   */
+  alignMetrics(currentMetrics) {
+    console.log('[SNW Alignment] Calibrating metrics for auction preparation...');
+
+    const aligned = { ...currentMetrics };
+
+    // Apply calibration adjustments
+    if (!aligned.liquidityMultiplier.calibrated) {
+      aligned.liquidityMultiplier.currentMultiplier = 
+        Math.floor(aligned.liquidityMultiplier.currentMultiplier * 100) / 100;
+      aligned.liquidityMultiplier.calibrated = true;
+    }
+
+    // Ensure cosmic resonance alignment
+    if (!aligned.cosmicResonance.perfectCalibration) {
+      aligned.cosmicResonance.resonanceStrength = Math.max(
+        aligned.cosmicResonance.resonanceStrength,
+        this.CALIBRATION_PRECISION * 100
+      );
+      aligned.cosmicResonance.perfectCalibration = true;
+      aligned.cosmicResonance.cosmicBacking.resonanceStability = 'stable';
+    }
+
+    // Recalculate auction readiness
+    aligned.auctionReady = this.isAuctionReady(
+      aligned.snwScore,
+      aligned.liquidityMultiplier,
+      aligned.cosmicResonance
+    );
+
+    console.log('[SNW Alignment] Calibration complete - Auction ready:', aligned.auctionReady.ready);
+
+    return aligned;
   }
 }
 

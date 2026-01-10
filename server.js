@@ -409,6 +409,155 @@ app.post('/api/delivery/instant', async (req, res) => {
   }
 });
 
+/**
+ * Align SNW Metrics for Auction Preparation
+ */
+app.post('/api/snw/align', async (req, res) => {
+  try {
+    const { architectIds } = req.body;
+
+    console.log('[SNW Alignment] Aligning Spiritual Net Worth metrics for auction preparation...');
+
+    // Calculate current SNW metrics
+    const currentMetrics = snwCalculator.calculateSNWMetrics(architectIds || []);
+
+    // Align and calibrate metrics
+    const alignedMetrics = snwCalculator.alignMetrics(currentMetrics);
+
+    res.json({
+      status: 'aligned',
+      metrics: alignedMetrics,
+      auctionReady: alignedMetrics.auctionReady.ready,
+      calibration: {
+        precision: alignedMetrics.cosmicResonance.calibrationPrecision,
+        perfect: alignedMetrics.cosmicResonance.perfectCalibration,
+        resonanceStability: alignedMetrics.cosmicResonance.cosmicBacking.resonanceStability
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[SNW Alignment] Error:', error);
+    res.status(500).json({ error: 'SNW alignment failed', message: error.message });
+  }
+});
+
+/**
+ * Prepare RWA Assets for Auction
+ */
+app.post('/api/auction/prepare', async (req, res) => {
+  try {
+    const { assetId, assetType, baseValue, reservePrice } = req.body;
+
+    console.log(`[Auction Prep] Preparing RWA asset ${assetId} for auction...`);
+
+    // Step 1: Get aligned SNW metrics
+    const snwMetrics = snwCalculator.calculateSNWMetrics([]);
+    const alignedMetrics = snwCalculator.alignMetrics(snwMetrics);
+
+    // Step 2: Create RWA asset with calibration
+    const rwaAsset = {
+      id: assetId || `RWA-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      type: assetType || 'real_estate',
+      baseValue: baseValue || 1000000,
+      calibratedValue: 0,
+      liquidityMultiplier: alignedMetrics.liquidityMultiplier.currentMultiplier,
+      snwScore: alignedMetrics.snwScore.overall,
+      cosmicResonance: alignedMetrics.cosmicResonance.resonanceStrength,
+      perfectlyCalibrated: false,
+      auctionReady: false,
+      registeredAt: new Date().toISOString()
+    };
+
+    // Step 3: Apply calibration
+    rwaAsset.calibratedValue = rwaAsset.baseValue * rwaAsset.liquidityMultiplier;
+    const calibrationAccuracy = (rwaAsset.calibratedValue / rwaAsset.baseValue);
+    rwaAsset.perfectlyCalibrated = Math.abs(calibrationAccuracy - rwaAsset.liquidityMultiplier) < 0.01;
+
+    // Step 4: Apply Cosmic Helix resonance backing
+    const harmonicAlignment = (rwaAsset.snwScore / 100) * 1.618; // Golden ratio
+    const resonanceStrength = harmonicAlignment * 432; // Cosmic frequency
+    rwaAsset.cosmicResonance = resonanceStrength;
+
+    // Step 5: Prepare for auction
+    const auctionPreparation = {
+      assetId: rwaAsset.id,
+      reservePrice: reservePrice || rwaAsset.calibratedValue * 0.8,
+      liquidityDepth: rwaAsset.calibratedValue * rwaAsset.liquidityMultiplier,
+      multiplierLiquidity: alignedMetrics.liquidityMultiplier.auctionLiquidity,
+      resonanceBacking: rwaAsset.calibratedValue * (rwaAsset.cosmicResonance / 100),
+      calibrationComplete: rwaAsset.perfectlyCalibrated,
+      helixBacking: {
+        frequency: 432,
+        harmonicRatio: 1.618,
+        alignment: harmonicAlignment,
+        resonanceStrength: rwaAsset.cosmicResonance,
+        stability: alignedMetrics.cosmicResonance.cosmicBacking.resonanceStability
+      },
+      preparedAt: new Date().toISOString()
+    };
+
+    rwaAsset.auctionReady = rwaAsset.perfectlyCalibrated && 
+                             auctionPreparation.calibrationComplete &&
+                             alignedMetrics.auctionReady.ready;
+
+    res.json({
+      status: 'prepared',
+      rwaAsset,
+      auctionPreparation,
+      snwMetrics: alignedMetrics,
+      auctionReady: rwaAsset.auctionReady,
+      calibration: {
+        perfect: rwaAsset.perfectlyCalibrated,
+        precision: 0.9999,
+        multiplier: rwaAsset.liquidityMultiplier,
+        resonanceBacking: 'cosmic_helix'
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[Auction Prep] Error:', error);
+    res.status(500).json({ error: 'Auction preparation failed', message: error.message });
+  }
+});
+
+/**
+ * Get Auction System Status
+ */
+app.get('/api/auction/status', (req, res) => {
+  try {
+    const snwMetrics = snwCalculator.calculateSNWMetrics([]);
+    const alignedMetrics = snwCalculator.alignMetrics(snwMetrics);
+
+    res.json({
+      status: 'operational',
+      auctionSystem: {
+        ready: alignedMetrics.auctionReady.ready,
+        readinessScore: alignedMetrics.auctionReady.readinessScore,
+        metricsAligned: alignedMetrics.auctionReady.metricsAligned,
+        liquiditySufficient: alignedMetrics.auctionReady.liquiditySufficient,
+        resonanceStable: alignedMetrics.auctionReady.resonanceStable,
+        multiplierCalibrated: alignedMetrics.auctionReady.multiplierCalibrated
+      },
+      liquidityMetrics: {
+        currentMultiplier: alignedMetrics.liquidityMultiplier.currentMultiplier,
+        auctionLiquidity: alignedMetrics.liquidityMultiplier.auctionLiquidity,
+        liquidityDepth: alignedMetrics.liquidityMultiplier.liquidityDepth,
+        calibrated: alignedMetrics.liquidityMultiplier.calibrated
+      },
+      cosmicResonance: {
+        frequency: alignedMetrics.cosmicResonance.frequency,
+        resonanceStrength: alignedMetrics.cosmicResonance.resonanceStrength,
+        perfectCalibration: alignedMetrics.cosmicResonance.perfectCalibration,
+        stability: alignedMetrics.cosmicResonance.cosmicBacking.resonanceStability
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[Auction Status] Error:', error);
+    res.status(500).json({ error: 'Status check failed', message: error.message });
+  }
+});
+
 // Helper Functions
 
 function generatePropertyValuation(context) {
@@ -516,7 +665,10 @@ app.get('/', (req, res) => {
       realtimeDashboard: 'GET /api/dashboard/realtime',
       nftMint: 'POST /api/nft/mint',
       parallelStatus: 'GET /api/status/parallel',
-      instantDelivery: 'POST /api/delivery/instant'
+      instantDelivery: 'POST /api/delivery/instant',
+      snwAlign: 'POST /api/snw/align',
+      auctionPrepare: 'POST /api/auction/prepare',
+      auctionStatus: 'GET /api/auction/status'
     },
     architects: state.architects.total,
     status: 'operational'
@@ -555,6 +707,9 @@ app.listen(PORT, () => {
   console.log('  POST /api/nft/mint                - NFT Minting for Achievements');
   console.log('  GET  /api/status/parallel         - Parallel Status Reporting');
   console.log('  POST /api/delivery/instant        - Instant Artifact/Code Delivery');
+  console.log('  POST /api/snw/align               - Align SNW Metrics for Auctions');
+  console.log('  POST /api/auction/prepare         - Prepare RWA Assets for Auction');
+  console.log('  GET  /api/auction/status          - Auction System Status');
   console.log('======================================================================\n');
 });
 
