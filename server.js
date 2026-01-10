@@ -14,6 +14,14 @@ const { ApideckIntegration } = require('./integrations/apideck');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Server configuration
+const SERVER_CONFIG = {
+  name: 'OMNIVERSAL KERNEL API SERVER',
+  mode: 'main-infinite',
+  integrationTitle: 'Main-Infinite Integration with Helix Bitcoin-to-Bricks Protocol',
+  sovereignty: 'ADVANCED'
+};
+
 // Initialize integrations
 const crmIntegration = new CRMIntegration();
 const snwCalculator = new SNWCalculator();
@@ -681,8 +689,9 @@ app.post('/api/helix/calibrate-yield', async (req, res) => {
     const calibratedYield = periodYield * galacticYieldFactor;
 
     // Apply location-based yield boost
-    const locationYieldBoost = location?.toLowerCase() === 'tokyo' ? 1.08 : 
-                               location?.toLowerCase() === 'london' ? 1.06 : 1.0;
+    const locationLower = location?.toLowerCase();
+    const locationYieldBoost = locationLower === 'tokyo' ? 1.08 : 
+                               locationLower === 'london' ? 1.06 : 1.0;
     const finalYield = calibratedYield * locationYieldBoost;
 
     const yieldCalibration = {
@@ -1000,13 +1009,13 @@ app.get('/health', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log('======================================================================');
-  console.log('OMNIVERSAL KERNEL API SERVER');
-  console.log('Main-Infinite Integration with Helix Bitcoin-to-Bricks Protocol');
+  console.log(SERVER_CONFIG.name);
+  console.log(SERVER_CONFIG.integrationTitle);
   console.log('======================================================================');
   console.log(`Server running on port ${PORT}`);
-  console.log(`Mode: main-infinite`);
+  console.log(`Mode: ${SERVER_CONFIG.mode}`);
   console.log(`Total Architects: ${state.architects.total.toLocaleString()}`);
-  console.log(`Sovereignty: ADVANCED`);
+  console.log(`Sovereignty: ${SERVER_CONFIG.sovereignty}`);
   console.log('======================================================================');
   console.log('\nAvailable Endpoints:');
   console.log('  POST /api/ai/white-label         - White-Label GenAI & Tatras Proxy');
