@@ -403,6 +403,185 @@ class AuctionPreparationLayer:
         }
 
 
+class HelixBitcoinBridge:
+    """Helix Protocol Bitcoin-to-Bricks Bridge for Tokyo and London Real Estate"""
+    
+    def __init__(self):
+        self.btc_to_usd_rate = 45000.0  # Simulated BTC/USD rate
+        self.tokenized_btc_bricks = 0
+        self.total_btc_value = 0.0
+        self.regional_multipliers = {
+            "tokyo": 1.35,  # Tokyo premium multiplier
+            "london": 1.28   # London premium multiplier
+        }
+        self.galactic_calibration_factor = 1.0618  # Galactic Center calibration
+        logger.info("Helix Bitcoin Bridge initialized for Tokyo and London")
+    
+    async def convert_btc_to_bricks(
+        self, 
+        btc_amount: float, 
+        location: str, 
+        property_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Convert Bitcoin to Bricks (Real Estate Tokens) with location-specific calibration"""
+        logger.info(f"Converting {btc_amount} BTC to Bricks for {location}...")
+        
+        # Validate location
+        location_lower = location.lower()
+        if location_lower not in self.regional_multipliers:
+            raise ValueError(f"Unsupported location: {location}. Supported: Tokyo, London")
+        
+        # Calculate USD value from BTC
+        usd_value = btc_amount * self.btc_to_usd_rate
+        
+        # Apply regional multiplier
+        regional_multiplier = self.regional_multipliers[location_lower]
+        regional_value = usd_value * regional_multiplier
+        
+        # Apply Galactic Center calibration
+        galactic_calibrated_value = regional_value * self.galactic_calibration_factor
+        
+        # Generate unique asset ID
+        asset_id = f"BTC-BRICK-{location_lower.upper()}-{self.tokenized_btc_bricks + 1:08d}"
+        
+        # Create Bitcoin-backed Bricks asset
+        btc_brick_asset = {
+            "asset_id": asset_id,
+            "asset_type": "bitcoin_backed_real_estate",
+            "location": location,
+            "btc_amount": btc_amount,
+            "btc_usd_rate": self.btc_to_usd_rate,
+            "base_usd_value": usd_value,
+            "regional_multiplier": regional_multiplier,
+            "regional_value": regional_value,
+            "galactic_calibration_factor": self.galactic_calibration_factor,
+            "galactic_calibrated_value": galactic_calibrated_value,
+            "property_details": property_data,
+            "tokenized_at": datetime.now().isoformat()
+        }
+        
+        self.tokenized_btc_bricks += 1
+        self.total_btc_value += btc_amount
+        
+        logger.info(f"✓ Bitcoin-to-Bricks conversion complete: {asset_id}")
+        
+        return btc_brick_asset
+    
+    async def calibrate_btc_yield(
+        self,
+        btc_brick_asset: Dict[str, Any],
+        yield_params: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Calibrate yield for Bitcoin-backed Bricks with Galactic Center alignment"""
+        logger.info(f"Calibrating yield for {btc_brick_asset['asset_id']}...")
+        
+        # Extract parameters
+        annual_yield_rate = yield_params.get("annual_yield_rate", 0.05)  # 5% default
+        yield_period_months = yield_params.get("period_months", 12)
+        
+        # Calculate base yield
+        base_value = btc_brick_asset["galactic_calibrated_value"]
+        annual_yield = base_value * annual_yield_rate
+        period_yield = (annual_yield / 12) * yield_period_months
+        
+        # Apply Galactic Center calibration to yield
+        galactic_yield_factor = 1 + (self.galactic_calibration_factor - 1) * 0.5
+        calibrated_yield = period_yield * galactic_yield_factor
+        
+        # Apply location-based yield boost
+        location = btc_brick_asset["location"].lower()
+        location_yield_boost = 1.0
+        if location == "tokyo":
+            location_yield_boost = 1.08  # Tokyo 8% yield boost
+        elif location == "london":
+            location_yield_boost = 1.06  # London 6% yield boost
+        
+        final_yield = calibrated_yield * location_yield_boost
+        
+        yield_calibration = {
+            "asset_id": btc_brick_asset["asset_id"],
+            "base_value": base_value,
+            "annual_yield_rate": annual_yield_rate,
+            "base_annual_yield": annual_yield,
+            "period_months": yield_period_months,
+            "period_yield": period_yield,
+            "galactic_yield_factor": galactic_yield_factor,
+            "calibrated_yield": calibrated_yield,
+            "location_yield_boost": location_yield_boost,
+            "final_yield": final_yield,
+            "yield_per_btc": final_yield / btc_brick_asset["btc_amount"],
+            "galactic_center_aligned": True,
+            "calibrated_at": datetime.now().isoformat()
+        }
+        
+        logger.info(f"✓ Yield calibration complete: ${final_yield:,.2f} over {yield_period_months} months")
+        
+        return yield_calibration
+    
+    async def integrate_with_rwa(
+        self,
+        btc_brick_asset: Dict[str, Any],
+        rwa_calibration: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Integrate Bitcoin-backed Bricks with existing RWA logic"""
+        logger.info(f"Integrating {btc_brick_asset['asset_id']} with RWA system...")
+        
+        # Merge Bitcoin-backed asset with RWA calibration
+        integrated_asset = {
+            "asset_id": btc_brick_asset["asset_id"],
+            "asset_type": btc_brick_asset["asset_type"],
+            "bitcoin_backing": {
+                "btc_amount": btc_brick_asset["btc_amount"],
+                "btc_usd_rate": btc_brick_asset["btc_usd_rate"],
+                "btc_value_usd": btc_brick_asset["base_usd_value"]
+            },
+            "location": btc_brick_asset["location"],
+            "regional_calibration": {
+                "multiplier": btc_brick_asset["regional_multiplier"],
+                "regional_value": btc_brick_asset["regional_value"]
+            },
+            "galactic_calibration": {
+                "factor": btc_brick_asset["galactic_calibration_factor"],
+                "calibrated_value": btc_brick_asset["galactic_calibrated_value"]
+            },
+            "rwa_integration": {
+                "base_value": rwa_calibration.get("base_value", btc_brick_asset["galactic_calibrated_value"]),
+                "calibrated_value": rwa_calibration.get("calibrated_value", btc_brick_asset["galactic_calibrated_value"]),
+                "liquidity_multiplier": rwa_calibration.get("liquidity_multiplier", 1.0),
+                "snw_score": rwa_calibration.get("snw_score", 75.5),
+                "cosmic_resonance": rwa_calibration.get("cosmic_resonance", {}),
+                "perfectly_calibrated": rwa_calibration.get("perfectly_calibrated", True),
+                "calibration_precision": rwa_calibration.get("calibration_precision", 0.9999)
+            },
+            "helix_protocol": {
+                "bitcoin_native": True,
+                "location_optimized": True,
+                "galactic_aligned": True,
+                "rwa_compatible": True
+            },
+            "tokenized_at": btc_brick_asset["tokenized_at"],
+            "integrated_at": datetime.now().isoformat()
+        }
+        
+        logger.info(f"✓ RWA integration complete for {integrated_asset['asset_id']}")
+        
+        return integrated_asset
+    
+    def get_bridge_status(self) -> Dict[str, Any]:
+        """Get Bitcoin-to-Bricks bridge status"""
+        return {
+            "tokenized_btc_bricks": self.tokenized_btc_bricks,
+            "total_btc_value": self.total_btc_value,
+            "total_usd_value": self.total_btc_value * self.btc_to_usd_rate,
+            "btc_usd_rate": self.btc_to_usd_rate,
+            "supported_locations": list(self.regional_multipliers.keys()),
+            "regional_multipliers": self.regional_multipliers,
+            "galactic_calibration_active": True,
+            "galactic_calibration_factor": self.galactic_calibration_factor,
+            "bridge_status": "operational"
+        }
+
+
 class PerpetualDeploymentEngine:
     """Perpetual Deployment Engine for continuous operation"""
     
@@ -522,6 +701,7 @@ class OmniversalKernel:
         self.zakat_automation = ZakatAutomationLayer()
         self.nft_achievement = NFTAchievementLayer()
         self.auction_preparation = AuctionPreparationLayer()
+        self.helix_bitcoin_bridge = HelixBitcoinBridge()
         
         # Initialize systems
         self.deployment_engine = PerpetualDeploymentEngine()
@@ -761,6 +941,12 @@ class OmniversalKernel:
                     "total_liquidity": self.auction_preparation.total_liquidity,
                     "calibration_precision": self.auction_preparation.calibration_precision,
                     "cosmic_helix_active": True
+                },
+                "helix_bitcoin_bridge": {
+                    "tokenized_btc_bricks": self.helix_bitcoin_bridge.tokenized_btc_bricks,
+                    "total_btc_value": self.helix_bitcoin_bridge.total_btc_value,
+                    "supported_locations": list(self.helix_bitcoin_bridge.regional_multipliers.keys()),
+                    "galactic_calibration_active": True
                 }
             },
             "systems": {

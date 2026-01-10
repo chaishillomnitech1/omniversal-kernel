@@ -14,6 +14,14 @@ const { ApideckIntegration } = require('./integrations/apideck');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Server configuration
+const SERVER_CONFIG = {
+  name: 'OMNIVERSAL KERNEL API SERVER',
+  mode: 'main-infinite',
+  integrationTitle: 'Main-Infinite Integration with Helix Bitcoin-to-Bricks Protocol',
+  sovereignty: 'ADVANCED'
+};
+
 // Initialize integrations
 const crmIntegration = new CRMIntegration();
 const snwCalculator = new SNWCalculator();
@@ -558,6 +566,312 @@ app.get('/api/auction/status', (req, res) => {
   }
 });
 
+/**
+ * Helix Protocol Bitcoin-to-Bricks Conversion Endpoint
+ * Convert Bitcoin to Real Estate Tokens (Bricks) for Tokyo and London
+ */
+app.post('/api/helix/bitcoin-to-bricks', async (req, res) => {
+  try {
+    const { btcAmount, location, propertyData } = req.body;
+
+    console.log(`[Helix Bitcoin Bridge] Converting ${btcAmount} BTC to Bricks for ${location}...`);
+
+    // Validate input
+    if (!btcAmount || btcAmount <= 0) {
+      return res.status(400).json({ error: 'Invalid BTC amount', message: 'BTC amount must be greater than 0' });
+    }
+
+    if (!location) {
+      return res.status(400).json({ error: 'Location required', message: 'Please specify Tokyo or London' });
+    }
+
+    // Bitcoin-to-Bricks conversion constants
+    const BTC_USD_RATE = 45000;
+    const REGIONAL_MULTIPLIERS = {
+      tokyo: 1.35,
+      london: 1.28
+    };
+    const GALACTIC_CALIBRATION_FACTOR = 1.0618;
+
+    const locationLower = location.toLowerCase();
+    if (!REGIONAL_MULTIPLIERS[locationLower]) {
+      return res.status(400).json({ 
+        error: 'Invalid location', 
+        message: 'Only Tokyo and London are supported',
+        supportedLocations: Object.keys(REGIONAL_MULTIPLIERS)
+      });
+    }
+
+    // Calculate values
+    const usdValue = btcAmount * BTC_USD_RATE;
+    const regionalMultiplier = REGIONAL_MULTIPLIERS[locationLower];
+    const regionalValue = usdValue * regionalMultiplier;
+    const galacticCalibratedValue = regionalValue * GALACTIC_CALIBRATION_FACTOR;
+
+    // Generate asset ID
+    const assetId = `BTC-BRICK-${locationLower.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+    // Create Bitcoin-backed Bricks asset
+    const btcBrickAsset = {
+      assetId,
+      assetType: 'bitcoin_backed_real_estate',
+      location,
+      bitcoinBacking: {
+        btcAmount,
+        btcUsdRate: BTC_USD_RATE,
+        baseUsdValue: usdValue
+      },
+      regionalCalibration: {
+        multiplier: regionalMultiplier,
+        regionalValue
+      },
+      galacticCalibration: {
+        factor: GALACTIC_CALIBRATION_FACTOR,
+        calibratedValue: galacticCalibratedValue
+      },
+      propertyDetails: propertyData || {},
+      helixProtocol: {
+        bitcoinNative: true,
+        locationOptimized: true,
+        galacticAligned: true,
+        rwaCompatible: true
+      },
+      tokenizedAt: new Date().toISOString()
+    };
+
+    console.log(`[Helix Bitcoin Bridge] ✓ Conversion complete: ${assetId}`);
+
+    res.json({
+      status: 'success',
+      btcBrickAsset,
+      conversionSummary: {
+        btcAmount,
+        usdValue,
+        regionalValue,
+        galacticCalibratedValue,
+        location,
+        valueIncrease: ((galacticCalibratedValue - usdValue) / usdValue * 100).toFixed(2) + '%'
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('[Helix Bitcoin Bridge] Error:', error);
+    res.status(500).json({ error: 'Bitcoin-to-Bricks conversion failed', message: error.message });
+  }
+});
+
+/**
+ * Helix Protocol Yield Calibration Endpoint
+ * Calibrate yield for Bitcoin-backed Bricks with Galactic Center alignment
+ */
+app.post('/api/helix/calibrate-yield', async (req, res) => {
+  try {
+    const { assetId, btcAmount, galacticCalibratedValue, location, annualYieldRate, periodMonths } = req.body;
+
+    console.log(`[Helix Yield Calibration] Calibrating yield for ${assetId}...`);
+
+    if (!assetId || !btcAmount || !galacticCalibratedValue) {
+      return res.status(400).json({ error: 'Missing required fields', message: 'assetId, btcAmount, and galacticCalibratedValue are required' });
+    }
+
+    const GALACTIC_CALIBRATION_FACTOR = 1.0618;
+    const yieldRate = annualYieldRate || 0.05; // 5% default
+    const months = periodMonths || 12;
+
+    // Calculate yield
+    const baseValue = galacticCalibratedValue;
+    const annualYield = baseValue * yieldRate;
+    const periodYield = (annualYield / 12) * months;
+
+    // Apply Galactic Center calibration to yield
+    const galacticYieldFactor = 1 + (GALACTIC_CALIBRATION_FACTOR - 1) * 0.5;
+    const calibratedYield = periodYield * galacticYieldFactor;
+
+    // Apply location-based yield boost
+    const locationLower = location?.toLowerCase();
+    const locationYieldBoost = locationLower === 'tokyo' ? 1.08 : 
+                               locationLower === 'london' ? 1.06 : 1.0;
+    const finalYield = calibratedYield * locationYieldBoost;
+
+    const yieldCalibration = {
+      assetId,
+      baseValue,
+      annualYieldRate: yieldRate,
+      baseAnnualYield: annualYield,
+      periodMonths: months,
+      periodYield,
+      galacticYieldFactor,
+      calibratedYield,
+      locationYieldBoost,
+      finalYield,
+      yieldPerBtc: finalYield / btcAmount,
+      galacticCenterAligned: true,
+      calibratedAt: new Date().toISOString()
+    };
+
+    console.log(`[Helix Yield Calibration] ✓ Yield calibration complete: $${finalYield.toFixed(2)} over ${months} months`);
+
+    res.json({
+      status: 'calibrated',
+      yieldCalibration,
+      summary: {
+        totalYield: finalYield,
+        yieldPerBtc: finalYield / btcAmount,
+        yieldBoost: ((finalYield - periodYield) / periodYield * 100).toFixed(2) + '%'
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('[Helix Yield Calibration] Error:', error);
+    res.status(500).json({ error: 'Yield calibration failed', message: error.message });
+  }
+});
+
+/**
+ * Helix Protocol Regional Assets Endpoint
+ * Get Bitcoin-backed Bricks assets by location (Tokyo/London)
+ */
+app.get('/api/helix/regional-assets/:location', async (req, res) => {
+  try {
+    const { location } = req.params;
+
+    console.log(`[Helix Regional Assets] Fetching assets for ${location}...`);
+
+    const locationLower = location.toLowerCase();
+    if (!['tokyo', 'london'].includes(locationLower)) {
+      return res.status(400).json({ 
+        error: 'Invalid location', 
+        message: 'Only Tokyo and London are supported',
+        supportedLocations: ['tokyo', 'london']
+      });
+    }
+
+    // Regional statistics (simulated)
+    const regionalStats = {
+      location,
+      totalAssets: Math.floor(Math.random() * 100) + 50,
+      totalBtcBacked: Math.floor(Math.random() * 50) + 20,
+      totalValue: Math.floor(Math.random() * 10000000) + 5000000,
+      regionalMultiplier: locationLower === 'tokyo' ? 1.35 : 1.28,
+      yieldBoost: locationLower === 'tokyo' ? 1.08 : 1.06,
+      marketActivity: 'high',
+      galacticAlignment: 'optimal',
+      timestamp: new Date().toISOString()
+    };
+
+    res.json({
+      status: 'success',
+      location,
+      regionalStats,
+      helixProtocol: {
+        bitcoinNative: true,
+        locationOptimized: true,
+        galacticAligned: true,
+        rwaCompatible: true
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('[Helix Regional Assets] Error:', error);
+    res.status(500).json({ error: 'Regional assets query failed', message: error.message });
+  }
+});
+
+/**
+ * Helix Protocol Integration with RWA
+ * Integrate Bitcoin-backed Bricks with existing RWA logic
+ */
+app.post('/api/helix/integrate-rwa', async (req, res) => {
+  try {
+    const { btcBrickAsset, rwaCalibration } = req.body;
+
+    console.log(`[Helix RWA Integration] Integrating ${btcBrickAsset?.assetId} with RWA system...`);
+
+    if (!btcBrickAsset) {
+      return res.status(400).json({ error: 'Missing BTC Brick asset', message: 'btcBrickAsset is required' });
+    }
+
+    // Get aligned SNW metrics for RWA integration
+    const snwMetrics = snwCalculator.calculateSNWMetrics([]);
+    const alignedMetrics = snwCalculator.alignMetrics(snwMetrics);
+
+    // Create integrated asset
+    const integratedAsset = {
+      assetId: btcBrickAsset.assetId,
+      assetType: btcBrickAsset.assetType,
+      bitcoinBacking: btcBrickAsset.bitcoinBacking,
+      location: btcBrickAsset.location,
+      regionalCalibration: btcBrickAsset.regionalCalibration,
+      galacticCalibration: btcBrickAsset.galacticCalibration,
+      rwaIntegration: {
+        baseValue: rwaCalibration?.baseValue || btcBrickAsset.galacticCalibration.calibratedValue,
+        calibratedValue: rwaCalibration?.calibratedValue || btcBrickAsset.galacticCalibration.calibratedValue,
+        liquidityMultiplier: alignedMetrics.liquidityMultiplier.currentMultiplier,
+        snwScore: alignedMetrics.snwScore.overall,
+        cosmicResonance: alignedMetrics.cosmicResonance,
+        perfectlyCalibrated: true,
+        calibrationPrecision: 0.9999
+      },
+      helixProtocol: {
+        bitcoinNative: true,
+        locationOptimized: true,
+        galacticAligned: true,
+        rwaCompatible: true
+      },
+      auctionReady: alignedMetrics.auctionReady.ready,
+      tokenizedAt: btcBrickAsset.tokenizedAt,
+      integratedAt: new Date().toISOString()
+    };
+
+    console.log(`[Helix RWA Integration] ✓ Integration complete for ${integratedAsset.assetId}`);
+
+    res.json({
+      status: 'integrated',
+      integratedAsset,
+      auctionReadiness: alignedMetrics.auctionReady,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('[Helix RWA Integration] Error:', error);
+    res.status(500).json({ error: 'RWA integration failed', message: error.message });
+  }
+});
+
+/**
+ * Helix Protocol Bridge Status
+ */
+app.get('/api/helix/bridge-status', (req, res) => {
+  try {
+    const bridgeStatus = {
+      status: 'operational',
+      btcUsdRate: 45000,
+      supportedLocations: ['tokyo', 'london'],
+      regionalMultipliers: {
+        tokyo: 1.35,
+        london: 1.28
+      },
+      galacticCalibrationActive: true,
+      galacticCalibrationFactor: 1.0618,
+      helixProtocol: {
+        version: '1.0.0',
+        bitcoinNative: true,
+        rwaCompatible: true,
+        yieldCalibration: true
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    res.json(bridgeStatus);
+  } catch (error) {
+    console.error('[Helix Bridge Status] Error:', error);
+    res.status(500).json({ error: 'Bridge status query failed', message: error.message });
+  }
+});
+
 // Helper Functions
 
 function generatePropertyValuation(context) {
@@ -668,7 +982,12 @@ app.get('/', (req, res) => {
       instantDelivery: 'POST /api/delivery/instant',
       snwAlign: 'POST /api/snw/align',
       auctionPrepare: 'POST /api/auction/prepare',
-      auctionStatus: 'GET /api/auction/status'
+      auctionStatus: 'GET /api/auction/status',
+      helixBitcoinToBricks: 'POST /api/helix/bitcoin-to-bricks',
+      helixYieldCalibrate: 'POST /api/helix/calibrate-yield',
+      helixRegionalAssets: 'GET /api/helix/regional-assets/:location',
+      helixIntegrateRWA: 'POST /api/helix/integrate-rwa',
+      helixBridgeStatus: 'GET /api/helix/bridge-status'
     },
     architects: state.architects.total,
     status: 'operational'
@@ -690,13 +1009,13 @@ app.get('/health', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log('======================================================================');
-  console.log('OMNIVERSAL KERNEL API SERVER');
-  console.log('Main-Infinite Integration');
+  console.log(SERVER_CONFIG.name);
+  console.log(SERVER_CONFIG.integrationTitle);
   console.log('======================================================================');
   console.log(`Server running on port ${PORT}`);
-  console.log(`Mode: main-infinite`);
+  console.log(`Mode: ${SERVER_CONFIG.mode}`);
   console.log(`Total Architects: ${state.architects.total.toLocaleString()}`);
-  console.log(`Sovereignty: ADVANCED`);
+  console.log(`Sovereignty: ${SERVER_CONFIG.sovereignty}`);
   console.log('======================================================================');
   console.log('\nAvailable Endpoints:');
   console.log('  POST /api/ai/white-label         - White-Label GenAI & Tatras Proxy');
@@ -710,6 +1029,12 @@ app.listen(PORT, () => {
   console.log('  POST /api/snw/align               - Align SNW Metrics for Auctions');
   console.log('  POST /api/auction/prepare         - Prepare RWA Assets for Auction');
   console.log('  GET  /api/auction/status          - Auction System Status');
+  console.log('\n  🌟 Helix Protocol - Bitcoin-to-Bricks (Tokyo & London):');
+  console.log('  POST /api/helix/bitcoin-to-bricks - Convert BTC to Real Estate Tokens');
+  console.log('  POST /api/helix/calibrate-yield   - Calibrate Yield with Galactic Center');
+  console.log('  GET  /api/helix/regional-assets/:location - Get Tokyo/London Assets');
+  console.log('  POST /api/helix/integrate-rwa     - Integrate with RWA Logic');
+  console.log('  GET  /api/helix/bridge-status     - Helix Bridge Status');
   console.log('======================================================================\n');
 });
 
